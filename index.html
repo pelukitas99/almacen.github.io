@@ -86,8 +86,8 @@
         #productList {
             margin-top: 40px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;  /* Cambié la dirección para que sea vertical */
+            align-items: center;
             gap: 20px;
             max-width: 90%;
             width: 90%;
@@ -101,7 +101,7 @@
         }
 
         .product {
-            width: 200px;
+            width: 80%;  /* Ancho reducido para que no esté tan grande */
             background-color: #f8f9fa;
             border: 1px solid #e0e0e0;
             padding: 15px;
@@ -231,16 +231,17 @@
             showProductsForWarehouse('A');
         }
 
-        // Evento para cuando el usuario cambia la selección de almacén
-        document.getElementById('warehouseSelector').addEventListener('change', (event) => {
-            const selectedWarehouse = event.target.value;
+        // Escuchador de eventos para cambiar de almacén
+        document.getElementById('warehouseSelector').addEventListener('change', function() {
+            const selectedWarehouse = this.value;
             highlightWarehouse(selectedWarehouse);
             showProductsForWarehouse(selectedWarehouse);
         });
 
-        // Inicializar el mapa y la lista con el almacén A por defecto
-        highlightWarehouse('A');
-        showProductsForWarehouse('A');
+        // Inicialización
+        window.onload = function() {
+            resetWarehouse();
+        }
     </script>
 
 </body>
