@@ -86,163 +86,101 @@
         #productList {
             margin-top: 40px;
             display: flex;
-            flex-direction: column;  /* Cambié la dirección para que sea vertical */
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
-            max-width: 90%;
-            width: 90%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            max-height: 350px;
         }
 
+        /* Cada producto */
         .product {
-            width: 80%;  /* Ancho reducido para que no esté tan grande */
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: row;  /* Alineación horizontal de los elementos */
+            background-color: #fff;
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease;
-            text-align: left;
-        }
-
-        .product:hover {
-            transform: scale(1.02);
-        }
-
-        .product strong {
-            color: #007BFF;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            align-items: center;  /* Centra los elementos dentro del contenedor */
+            justify-content: space-between;  /* Asegura que la información se separe bien */
         }
 
         .product p {
-            color: #555;
-            font-size: 14px;
+            font-size: 18px;
+            margin-right: 10px;  /* Espaciado entre los elementos */
         }
 
-        /* Diseño para dispositivos móviles */
-        @media (max-width: 768px) {
-            #warehouseMap {
-                flex-direction: column;
-                height: auto;
-            }
-
-            #warehouseA, #warehouseB, #warehouseC {
-                width: 100%;
-                height: 150px;
-            }
-
-            select, button {
-                width: 90%;
-            }
-
-            #productList {
-                max-width: 100%;
-                padding: 10px;
-            }
+        .product .product-name {
+            font-weight: bold;
         }
 
     </style>
 </head>
 <body>
 
-    <h1>Selecciona un Almacén</h1>
+    <h1>Mapa del Almacén</h1>
 
-    <!-- Selector de almacén -->
-    <select id="warehouseSelector">
-        <option value="A">Producto A</option>
-        <option value="B">Producto B</option>
-        <option value="C">Producto C</option>
-    </select>
-
-    <button onclick="resetWarehouse()">Resetear Mapa</button>
-
-    <!-- Mapa del almacén -->
+    <!-- Mapa de Almacén -->
     <div id="warehouseMap">
-        <div id="warehouseA"></div>
-        <div id="warehouseB"></div>
-        <div id="warehouseC"></div>
+        <div id="warehouseA">Almacén A</div>
+        <div id="warehouseB">Almacén B</div>
+        <div id="warehouseC">Almacén C</div>
     </div>
 
+    <!-- Selección de Almacén -->
+    <h2>Seleccionar Almacén</h2>
+    <select id="warehouseSelect">
+        <option value="A">Almacén A</option>
+        <option value="B">Almacén B</option>
+        <option value="C">Almacén C</option>
+    </select>
+    <button onclick="showProducts()">Mostrar Productos</button>
+
     <!-- Lista de productos -->
-    <h2>Productos Disponibles</h2>
-    <div id="productList"></div>
+    <div id="productList">
+        <!-- Productos se agregarán aquí dinámicamente -->
+    </div>
 
     <script>
-        // URL del CSV de Google Sheets
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv";
+        // Lista de productos en formato JSON
+        const products = {
+            "A": [
+                { name: "Coca-Cola", price: "52$", barcode: "123456", description: "Refresco", store: "A" },
+                { name: "Pepsi", price: "48$", barcode: "789123", description: "Refresco", store: "A" }
+            ],
+            "B": [
+                { name: "Fanta", price: "50$", barcode: "456789", description: "Refresco", store: "B" },
+                { name: "Sprite", price: "45$", barcode: "321654", description: "Refresco", store: "B" }
+            ],
+            "C": [
+                { name: "Agua", price: "30$", barcode: "112233", description: "Agua mineral", store: "C" },
+                { name: "Jugo", price: "60$", barcode: "445566", description: "Jugo natural", store: "C" }
+            ]
+        };
 
-        // Función para cambiar el color del almacén según la selección
-        function highlightWarehouse(warehouse) {
-            // Reseteamos el color de todos los almacenes
-            document.getElementById('warehouseA').style.backgroundColor = '#b8e2a9';
-            document.getElementById('warehouseB').style.backgroundColor = '#f6d04b';
-            document.getElementById('warehouseC').style.backgroundColor = '#f76c6c';
+        // Mostrar productos según el almacén seleccionado
+        function showProducts() {
+            const warehouse = document.getElementById("warehouseSelect").value;
+            const productList = document.getElementById("productList");
+            productList.innerHTML = "";  // Limpiar la lista antes de agregar productos
 
-            // Cambiamos el color del almacén seleccionado
-            if (warehouse === 'A') {
-                document.getElementById('warehouseA').style.backgroundColor = 'green';
-            } else if (warehouse === 'B') {
-                document.getElementById('warehouseB').style.backgroundColor = 'yellow';
-            } else if (warehouse === 'C') {
-                document.getElementById('warehouseC').style.backgroundColor = 'red';
+            // Verificar si hay productos para el almacén seleccionado
+            if (products[warehouse]) {
+                products[warehouse].forEach(product => {
+                    const productDiv = document.createElement("div");
+                    productDiv.classList.add("product");
+
+                    // Crear el contenido del producto
+                    productDiv.innerHTML = `
+                        <p class="product-name">${product.name}</p>
+                        <p>${product.price}</p>
+                        <p>${product.barcode}</p>
+                    `;
+
+                    // Añadir el producto a la lista
+                    productList.appendChild(productDiv);
+                });
             }
         }
-
-        // Función para obtener y mostrar los productos del almacén seleccionado
-        function showProductsForWarehouse(warehouse) {
-            fetch(csvUrl)
-                .then(response => response.text())
-                .then(data => {
-                    const rows = data.split("\n");
-                    const products = rows.map(row => row.split(","));
-                    const productList = document.getElementById("productList");
-                    productList.innerHTML = ''; // Limpiamos la lista al inicio
-
-                    // Recorremos los productos y mostramos solo los del almacén seleccionado
-                    products.forEach(product => {
-                        const almacén = product[6]?.trim();  // Suponemos que la columna 6 es el almacén
-                        
-                        // Hacemos la comparación flexible, que detecte tanto "A", "B", "C" como "Almacén A", "Almacén B", "Almacén C"
-                        if (almacén.toLowerCase() === warehouse.toLowerCase() || almacén.toLowerCase() === `almacén ${warehouse.toLowerCase()}`) {
-                            const productElement = document.createElement("div");
-                            productElement.classList.add("product");
-                            productElement.innerHTML = `
-                                <strong>Nombre:</strong> ${product[3]} <br>
-                                <strong>Unidades:</strong> ${product[4]} <br>
-                                <strong>Descripción:</strong> ${product[5]} <br>
-                                <strong>Almacén:</strong> Producto ${warehouse} <br>
-                            `;
-                            productList.appendChild(productElement);
-                        }
-                    });
-                })
-                .catch(error => console.error("Error fetching data: ", error));
-        }
-
-        // Función para resetear el mapa
-        function resetWarehouse() {
-            document.getElementById('warehouseSelector').value = 'A';
-            highlightWarehouse('A');
-            showProductsForWarehouse('A');
-        }
-
-        // Escuchador de eventos para cambiar de almacén
-        document.getElementById('warehouseSelector').addEventListener('change', function() {
-            const selectedWarehouse = this.value;
-            highlightWarehouse(selectedWarehouse);
-            showProductsForWarehouse(selectedWarehouse);
-        });
-
-        // Inicialización
-        window.onload = function() {
-            resetWarehouse();
-        }
     </script>
-
 </body>
 </html>
