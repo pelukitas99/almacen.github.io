@@ -3,18 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa del Almacén y Productos</title>
+    <title>Productos por Almacén</title>
     <style>
-        /* Reset de estilos */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         /* Estilos generales */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f1f1f1;
             color: #333;
             text-align: center;
@@ -24,17 +17,10 @@
         h1 {
             font-size: 32px;
             margin-bottom: 30px;
-            color: #333;
-        }
-
-        h2 {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: #444;
         }
 
         /* Selector de Almacén */
-        select, button {
+        select {
             font-size: 18px;
             padding: 12px 20px;
             margin: 10px;
@@ -42,32 +28,52 @@
             border: 2px solid #ddd;
             background-color: #fff;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        select:focus, button:focus {
-            outline: none;
-            border-color: #007BFF;
-            background-color: #f0f8ff;
+        /* Estilos de los productos */
+        #productList {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .product {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px;
+            width: 80%;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product h2 {
+            margin: 5px 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .product p {
+            font-size: 16px;
+            color: #555;
         }
 
         /* Mapa del Almacén */
         #warehouseMap {
             display: flex;
-            width: 80%;
-            height: 400px;
-            margin: 30px auto;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-            background-color: #e0e0e0;
+            justify-content: center;
+            margin-top: 30px;
         }
 
         #warehouseA, #warehouseB, #warehouseC {
             width: 33.33%;
-            height: 100%;
+            height: 200px;
             border: 1px solid #fff;
             transition: background-color 0.3s ease;
+            display: inline-block;
+            padding: 20px;
         }
 
         #warehouseA {
@@ -82,162 +88,90 @@
             background-color: #f76c6c;
         }
 
-        /* Lista de productos */
-        #productList {
-            margin-top: 40px;
-            display: flex;
-            flex-direction: column; /* Mostrar productos en una columna */
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            max-width: 80%;
-            margin: 30px auto;
-        }
-
-        .product {
-            display: flex;
-            flex-direction: column; /* Apilar la información en una columna */
-            align-items: center;
-            justify-content: center;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            width: 300px;
-            height: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .product:hover {
-            transform: scale(1.05);
-        }
-
-        .product img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-
-        .product p {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .product p span {
-            font-weight: bold;
-        }
-
-        /* Estilo para la parte de productos vacíos */
-        #emptyMessage {
-            font-size: 18px;
-            color: #777;
-            margin-top: 30px;
-        }
-
     </style>
 </head>
 <body>
 
-    <h1>Selecciona un Almacén</h1>
-    <div>
-        <select id="warehouseSelect">
-            <option value="">Seleccionar Almacén</option>
-            <option value="A">Almacén A</option>
-            <option value="B">Almacén B</option>
-            <option value="C">Almacén C</option>
-        </select>
-    </div>
+    <h1>Selecciona el Almacén</h1>
 
-    <h2 id="warehouseTitle">Elige un almacén para ver los productos.</h2>
+    <!-- Selector de Almacén -->
+    <select id="warehouseSelector">
+        <option value="">Seleccione un Almacén</option>
+        <option value="A">Almacén A</option>
+        <option value="B">Almacén B</option>
+        <option value="C">Almacén C</option>
+    </select>
 
     <div id="warehouseMap">
-        <div id="warehouseA"></div>
-        <div id="warehouseB"></div>
-        <div id="warehouseC"></div>
+        <div id="warehouseA">Almacén A</div>
+        <div id="warehouseB">Almacén B</div>
+        <div id="warehouseC">Almacén C</div>
     </div>
 
     <div id="productList">
         <!-- Aquí se mostrarán los productos -->
     </div>
 
-    <div id="emptyMessage">Por favor, selecciona un almacén para ver los productos.</div>
-
     <script>
-        const warehouseSelect = document.getElementById('warehouseSelect');
-        const warehouseTitle = document.getElementById('warehouseTitle');
-        const warehouseMap = document.getElementById('warehouseMap');
-        const productList = document.getElementById('productList');
-        const emptyMessage = document.getElementById('emptyMessage');
+        // URL del archivo CSV
+        let csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv";
 
-        const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv';
+        // Función para obtener los datos desde el archivo CSV
+        function obtenerProductosDesdeCSV() {
+            fetch(csvUrl)
+                .then(response => response.text())
+                .then(text => {
+                    let filas = text.split("\n").map(row => row.split(","));
+                    let almacenSeleccionado = document.getElementById("warehouseSelector").value;
+                    let productosFiltrados = [];
 
-        warehouseSelect.addEventListener('change', function() {
-            const selectedWarehouse = warehouseSelect.value;
+                    // Filtrar los productos por almacén
+                    for (let i = 1; i < filas.length; i++) {
+                        let almacen = filas[i][6]?.trim(); // Columna de Almacén
+                        let codigoBarras = filas[i][0]?.trim(); // Columna de Código de barras
+                        let nombre = filas[i][3]?.trim(); // Columna de Nombre del Producto
+                        let descripcion = filas[i][5]?.trim(); // Columna de Descripción del Producto
 
-            // Actualizar título del almacén
-            warehouseTitle.textContent = `Productos del Almacén ${selectedWarehouse}`;
+                        if (almacen === almacenSeleccionado) {
+                            productosFiltrados.push({
+                                codigoBarras: codigoBarras,
+                                nombre: nombre,
+                                descripcion: descripcion
+                            });
+                        }
+                    }
 
-            // Limpiar la lista de productos antes de mostrar los nuevos
-            productList.innerHTML = '';
-
-            // Si se selecciona un almacén válido
-            if (selectedWarehouse) {
-                emptyMessage.style.display = 'none';
-                fetchCSVData(selectedWarehouse);
-            } else {
-                emptyMessage.style.display = 'block'; // Mostrar mensaje si no se selecciona un almacén
-            }
-        });
-
-        async function fetchCSVData(warehouse) {
-            const response = await fetch(spreadsheetUrl);
-            const data = await response.text();
-            const rows = data.split('\n');
-            const products = [];
-
-            // Parsear cada fila
-            for (let i = 1; i < rows.length; i++) {
-                const columns = rows[i].split(',');
-
-                // Si la fila tiene datos y corresponde al almacén seleccionado
-                if (columns.length > 1 && columns[5] === warehouse) {
-                    products.push({
-                        name: columns[3],
-                        price: columns[1],
-                        barcode: columns[0],
-                        description: columns[4],
-                        storage: columns[5],
-                        img: "https://via.placeholder.com/100"
-                    });
-                }
-            }
-
-            // Mostrar los productos en el almacén seleccionado
-            warehouseMap.querySelectorAll('div').forEach((el, index) => {
-                el.style.backgroundColor = '#e0e0e0'; // Restablecer el color de fondo de todos los almacenes
-            });
-
-            if (warehouse === 'A') document.getElementById('warehouseA').style.backgroundColor = '#b8e2a9';
-            if (warehouse === 'B') document.getElementById('warehouseB').style.backgroundColor = '#f6d04b';
-            if (warehouse === 'C') document.getElementById('warehouseC').style.backgroundColor = '#f76c6c';
-
-            // Si hay productos, se muestran verticalmente
-            products.forEach(product => {
-                const productDiv = document.createElement('div');
-                productDiv.classList.add('product');
-                productDiv.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <p><span>Nombre:</span> ${product.name}</p>
-                    <p><span>Precio:</span> ${product.price}</p>
-                    <p><span>Código:</span> ${product.barcode}</p>
-                    <p><span>Descripción:</span> ${product.description}</p>
-                `;
-                productList.appendChild(productDiv);
-            });
+                    mostrarProductos(productosFiltrados);
+                })
+                .catch(error => console.error("Error:", error));
         }
+
+        // Función para mostrar los productos
+        function mostrarProductos(productos) {
+            let productListDiv = document.getElementById("productList");
+            productListDiv.innerHTML = ""; // Limpiar la lista antes de agregar los productos
+
+            if (productos.length === 0) {
+                productListDiv.innerHTML = "<p>No hay productos disponibles en este almacén.</p>";
+            } else {
+                productos.forEach(producto => {
+                    let productoDiv = document.createElement("div");
+                    productoDiv.classList.add("product");
+
+                    productoDiv.innerHTML = `
+                        <h2>${producto.nombre}</h2>
+                        <p><strong>Código de barras:</strong> ${producto.codigoBarras}</p>
+                        <p><strong>Descripción:</strong> ${producto.descripcion}</p>
+                    `;
+
+                    productListDiv.appendChild(productoDiv);
+                });
+            }
+        }
+
+        // Detectar cuando el usuario cambia el almacén
+        document.getElementById("warehouseSelector").addEventListener("change", obtenerProductosDesdeCSV);
     </script>
+
 </body>
 </html>
