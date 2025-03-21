@@ -54,6 +54,7 @@
         /* Mapa del Almacén */
         #warehouseMap {
             display: flex;
+            flex-direction: column;
             width: 80%;
             height: 400px;
             margin: 30px auto;
@@ -63,8 +64,19 @@
             background-color: #e0e0e0;
         }
 
+        #warehouseTop {
+            display: flex;
+            width: 100%;
+            height: 50%; /* La mitad de la pantalla */
+        }
+
+        #warehouseBottom {
+            width: 100%;
+            height: 50%; /* La otra mitad de la pantalla */
+        }
+
         #warehouseA, #warehouseB, #warehouseC {
-            width: 33.33%;
+            width: 50%;
             height: 100%;
             border: 1px solid #fff;
             transition: background-color 0.3s ease;
@@ -163,9 +175,13 @@
 
     <!-- Mapa del almacén -->
     <div id="warehouseMap">
-        <div id="warehouseA"></div>
-        <div id="warehouseB"></div>
-        <div id="warehouseC"></div>
+        <div id="warehouseTop">
+            <div id="warehouseB"></div>
+            <div id="warehouseC"></div>
+        </div>
+        <div id="warehouseBottom">
+            <div id="warehouseA"></div>
+        </div>
     </div>
 
     <!-- Lista de productos -->
@@ -211,10 +227,10 @@
                         if (almacén.toLowerCase() === warehouse.toLowerCase() || almacén.toLowerCase() === `almacén ${warehouse.toLowerCase()}`) {
                             const productElement = document.createElement("div");
                             productElement.classList.add("product");
-                            productElement.innerHTML = `
-                                <strong>Nombre:</strong> ${product[3]} <br>
-                                <strong>Unidades:</strong> ${product[4]} <br>
-                                <strong>Descripción:</strong> ${product[5]} <br>
+                            productElement.innerHTML = ` 
+                                <strong>Nombre:</strong> ${product[3]} <br> 
+                                <strong>Unidades:</strong> ${product[4]} <br> 
+                                <strong>Descripción:</strong> ${product[5]} <br> 
                             `;
                             productList.appendChild(productElement);
                         }
