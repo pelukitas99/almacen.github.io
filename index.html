@@ -86,101 +86,145 @@
         #productList {
             margin-top: 40px;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: row; /* Hacer que los productos estén en una fila */
+            flex-wrap: wrap;  /* Permite que los productos se acomoden en varias filas */
             justify-content: center;
             gap: 20px;
         }
 
-        /* Cada producto */
         .product {
             display: flex;
-            flex-direction: row;  /* Alineación horizontal de los elementos */
+            flex-direction: column; /* Apilar la información en una columna */
+            align-items: center;
+            justify-content: center;
             background-color: #fff;
-            border-radius: 10px;
             padding: 15px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            align-items: center;  /* Centra los elementos dentro del contenedor */
-            justify-content: space-between;  /* Asegura que la información se separe bien */
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 150px;
+            height: 250px;
+            transition: transform 0.3s ease;
+        }
+
+        .product:hover {
+            transform: scale(1.05);
+        }
+
+        .product img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
         }
 
         .product p {
-            font-size: 18px;
-            margin-right: 10px;  /* Espaciado entre los elementos */
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
         }
 
-        .product .product-name {
+        .product p span {
             font-weight: bold;
+        }
+
+        /* Estilo para la parte de productos vacíos */
+        #emptyMessage {
+            font-size: 18px;
+            color: #777;
+            margin-top: 30px;
         }
 
     </style>
 </head>
 <body>
 
-    <h1>Mapa del Almacén</h1>
+    <h1>Selecciona un Almacén</h1>
+    <div>
+        <select id="warehouseSelect">
+            <option value="">Seleccionar Almacén</option>
+            <option value="A">Almacén A</option>
+            <option value="B">Almacén B</option>
+            <option value="C">Almacén C</option>
+        </select>
+    </div>
 
-    <!-- Mapa de Almacén -->
+    <h2 id="warehouseTitle">Elige un almacén para ver los productos.</h2>
+
     <div id="warehouseMap">
-        <div id="warehouseA">Almacén A</div>
-        <div id="warehouseB">Almacén B</div>
-        <div id="warehouseC">Almacén C</div>
+        <div id="warehouseA"></div>
+        <div id="warehouseB"></div>
+        <div id="warehouseC"></div>
     </div>
 
-    <!-- Selección de Almacén -->
-    <h2>Seleccionar Almacén</h2>
-    <select id="warehouseSelect">
-        <option value="A">Almacén A</option>
-        <option value="B">Almacén B</option>
-        <option value="C">Almacén C</option>
-    </select>
-    <button onclick="showProducts()">Mostrar Productos</button>
-
-    <!-- Lista de productos -->
     <div id="productList">
-        <!-- Productos se agregarán aquí dinámicamente -->
+        <!-- Aquí se mostrarán los productos -->
     </div>
+
+    <div id="emptyMessage">Por favor, selecciona un almacén para ver los productos.</div>
 
     <script>
-        // Lista de productos en formato JSON
         const products = {
-            "A": [
-                { name: "Coca-Cola", price: "52$", barcode: "123456", description: "Refresco", store: "A" },
-                { name: "Pepsi", price: "48$", barcode: "789123", description: "Refresco", store: "A" }
+            A: [
+                { name: "Coca-Cola", price: "$52", barcode: "123456789", description: "Bebida refrescante", storage: "A", img: "https://via.placeholder.com/100" },
+                { name: "Pepsi", price: "$48", barcode: "987654321", description: "Bebida refrescante", storage: "A", img: "https://via.placeholder.com/100" }
             ],
-            "B": [
-                { name: "Fanta", price: "50$", barcode: "456789", description: "Refresco", store: "B" },
-                { name: "Sprite", price: "45$", barcode: "321654", description: "Refresco", store: "B" }
+            B: [
+                { name: "Galletas Oreo", price: "$30", barcode: "111222333", description: "Deliciosas galletas", storage: "B", img: "https://via.placeholder.com/100" },
+                { name: "Chocolates", price: "$25", barcode: "444555666", description: "Chocolate dulce", storage: "B", img: "https://via.placeholder.com/100" }
             ],
-            "C": [
-                { name: "Agua", price: "30$", barcode: "112233", description: "Agua mineral", store: "C" },
-                { name: "Jugo", price: "60$", barcode: "445566", description: "Jugo natural", store: "C" }
+            C: [
+                { name: "Detergente", price: "$15", barcode: "777888999", description: "Detergente líquido", storage: "C", img: "https://via.placeholder.com/100" },
+                { name: "Suavizante", price: "$12", barcode: "333444555", description: "Suavizante para ropa", storage: "C", img: "https://via.placeholder.com/100" }
             ]
         };
 
-        // Mostrar productos según el almacén seleccionado
-        function showProducts() {
-            const warehouse = document.getElementById("warehouseSelect").value;
-            const productList = document.getElementById("productList");
-            productList.innerHTML = "";  // Limpiar la lista antes de agregar productos
+        const warehouseSelect = document.getElementById('warehouseSelect');
+        const warehouseTitle = document.getElementById('warehouseTitle');
+        const warehouseMap = document.getElementById('warehouseMap');
+        const productList = document.getElementById('productList');
+        const emptyMessage = document.getElementById('emptyMessage');
 
-            // Verificar si hay productos para el almacén seleccionado
-            if (products[warehouse]) {
-                products[warehouse].forEach(product => {
-                    const productDiv = document.createElement("div");
-                    productDiv.classList.add("product");
+        warehouseSelect.addEventListener('change', function() {
+            const selectedWarehouse = warehouseSelect.value;
 
-                    // Crear el contenido del producto
+            // Actualizar título del almacén
+            warehouseTitle.textContent = `Productos del Almacén ${selectedWarehouse}`;
+
+            // Limpiar la lista de productos antes de mostrar los nuevos
+            productList.innerHTML = '';
+
+            // Si se selecciona un almacén válido
+            if (selectedWarehouse) {
+                emptyMessage.style.display = 'none';
+                const warehouseProducts = products[selectedWarehouse];
+
+                // Mostrar los productos en el almacén seleccionado
+                warehouseMap.querySelectorAll('div').forEach((el, index) => {
+                    el.style.backgroundColor = '#e0e0e0'; // Restablecer el color de fondo de todos los almacenes
+                });
+
+                if (selectedWarehouse === 'A') document.getElementById('warehouseA').style.backgroundColor = '#b8e2a9';
+                if (selectedWarehouse === 'B') document.getElementById('warehouseB').style.backgroundColor = '#f6d04b';
+                if (selectedWarehouse === 'C') document.getElementById('warehouseC').style.backgroundColor = '#f76c6c';
+
+                warehouseProducts.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.classList.add('product');
                     productDiv.innerHTML = `
-                        <p class="product-name">${product.name}</p>
-                        <p>${product.price}</p>
-                        <p>${product.barcode}</p>
+                        <img src="${product.img}" alt="${product.name}">
+                        <p><span>Nombre:</span> ${product.name}</p>
+                        <p><span>Precio:</span> ${product.price}</p>
+                        <p><span>Código:</span> ${product.barcode}</p>
+                        <p><span>Descripción:</span> ${product.description}</p>
                     `;
-
-                    // Añadir el producto a la lista
                     productList.appendChild(productDiv);
                 });
+            } else {
+                emptyMessage.style.display = 'block'; // Mostrar mensaje si no se selecciona un almacén
             }
-        }
+        });
     </script>
 </body>
 </html>
+
