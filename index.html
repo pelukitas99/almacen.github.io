@@ -86,10 +86,12 @@
         #productList {
             margin-top: 40px;
             display: flex;
-            flex-direction: row; /* Hacer que los productos estén en una fila */
-            flex-wrap: wrap;  /* Permite que los productos se acomoden en varias filas */
+            flex-direction: column; /* Mostrar productos en una columna */
+            align-items: center;
             justify-content: center;
             gap: 20px;
+            max-width: 80%;
+            margin: 30px auto;
         }
 
         .product {
@@ -101,8 +103,8 @@
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            width: 150px;
-            height: 250px;
+            width: 300px;
+            height: auto;
             transition: transform 0.3s ease;
         }
 
@@ -164,26 +166,13 @@
     <div id="emptyMessage">Por favor, selecciona un almacén para ver los productos.</div>
 
     <script>
-        const products = {
-            A: [
-                { name: "Coca-Cola", price: "$52", barcode: "123456789", description: "Bebida refrescante", storage: "A", img: "https://via.placeholder.com/100" },
-                { name: "Pepsi", price: "$48", barcode: "987654321", description: "Bebida refrescante", storage: "A", img: "https://via.placeholder.com/100" }
-            ],
-            B: [
-                { name: "Galletas Oreo", price: "$30", barcode: "111222333", description: "Deliciosas galletas", storage: "B", img: "https://via.placeholder.com/100" },
-                { name: "Chocolates", price: "$25", barcode: "444555666", description: "Chocolate dulce", storage: "B", img: "https://via.placeholder.com/100" }
-            ],
-            C: [
-                { name: "Detergente", price: "$15", barcode: "777888999", description: "Detergente líquido", storage: "C", img: "https://via.placeholder.com/100" },
-                { name: "Suavizante", price: "$12", barcode: "333444555", description: "Suavizante para ropa", storage: "C", img: "https://via.placeholder.com/100" }
-            ]
-        };
-
         const warehouseSelect = document.getElementById('warehouseSelect');
         const warehouseTitle = document.getElementById('warehouseTitle');
         const warehouseMap = document.getElementById('warehouseMap');
         const productList = document.getElementById('productList');
         const emptyMessage = document.getElementById('emptyMessage');
+
+        const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv';
 
         warehouseSelect.addEventListener('change', function() {
             const selectedWarehouse = warehouseSelect.value;
@@ -197,34 +186,58 @@
             // Si se selecciona un almacén válido
             if (selectedWarehouse) {
                 emptyMessage.style.display = 'none';
-                const warehouseProducts = products[selectedWarehouse];
-
-                // Mostrar los productos en el almacén seleccionado
-                warehouseMap.querySelectorAll('div').forEach((el, index) => {
-                    el.style.backgroundColor = '#e0e0e0'; // Restablecer el color de fondo de todos los almacenes
-                });
-
-                if (selectedWarehouse === 'A') document.getElementById('warehouseA').style.backgroundColor = '#b8e2a9';
-                if (selectedWarehouse === 'B') document.getElementById('warehouseB').style.backgroundColor = '#f6d04b';
-                if (selectedWarehouse === 'C') document.getElementById('warehouseC').style.backgroundColor = '#f76c6c';
-
-                warehouseProducts.forEach(product => {
-                    const productDiv = document.createElement('div');
-                    productDiv.classList.add('product');
-                    productDiv.innerHTML = `
-                        <img src="${product.img}" alt="${product.name}">
-                        <p><span>Nombre:</span> ${product.name}</p>
-                        <p><span>Precio:</span> ${product.price}</p>
-                        <p><span>Código:</span> ${product.barcode}</p>
-                        <p><span>Descripción:</span> ${product.description}</p>
-                    `;
-                    productList.appendChild(productDiv);
-                });
+                fetchCSVData(selectedWarehouse);
             } else {
                 emptyMessage.style.display = 'block'; // Mostrar mensaje si no se selecciona un almacén
             }
         });
+
+        async function fetchCSVData(warehouse) {
+            const response = await fetch(spreadsheetUrl);
+            const data = await response.text();
+            const rows = data.split('\n');
+            const products = [];
+
+            // Parsear cada fila
+            for (let i = 1; i < rows.length; i++) {
+                const columns = rows[i].split(',');
+
+                // Si la fila tiene datos y corresponde al almacén seleccionado
+                if (columns.length > 1 && columns[5] === warehouse) {
+                    products.push({
+                        name: columns[3],
+                        price: columns[1],
+                        barcode: columns[0],
+                        description: columns[4],
+                        storage: columns[5],
+                        img: "https://via.placeholder.com/100"
+                    });
+                }
+            }
+
+            // Mostrar los productos en el almacén seleccionado
+            warehouseMap.querySelectorAll('div').forEach((el, index) => {
+                el.style.backgroundColor = '#e0e0e0'; // Restablecer el color de fondo de todos los almacenes
+            });
+
+            if (warehouse === 'A') document.getElementById('warehouseA').style.backgroundColor = '#b8e2a9';
+            if (warehouse === 'B') document.getElementById('warehouseB').style.backgroundColor = '#f6d04b';
+            if (warehouse === 'C') document.getElementById('warehouseC').style.backgroundColor = '#f76c6c';
+
+            // Si hay productos, se muestran verticalmente
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product');
+                productDiv.innerHTML = `
+                    <img src="${product.img}" alt="${product.name}">
+                    <p><span>Nombre:</span> ${product.name}</p>
+                    <p><span>Precio:</span> ${product.price}</p>
+                    <p><span>Código:</span> ${product.barcode}</p>
+                    <p><span>Descripción:</span> ${product.description}</p>
+                `;
+                productList.appendChild(productDiv);
+            });
+        }
     </script>
 </body>
 </html>
-
