@@ -200,7 +200,9 @@
                     // Recorremos los productos y mostramos solo los del almacén seleccionado
                     products.forEach(product => {
                         const almacén = product[6]?.trim();  // Suponemos que la columna 6 es el almacén
-                        if (almacén === warehouse) {
+                        
+                        // Hacemos la comparación flexible, que detecte tanto "A", "B", "C" como "Almacén A", "Almacén B", "Almacén C"
+                        if (almacén.toLowerCase() === warehouse.toLowerCase() || almacén.toLowerCase() === `almacén ${warehouse.toLowerCase()}`) {
                             const productElement = document.createElement("div");
                             productElement.classList.add("product");
                             productElement.innerHTML = `
@@ -233,6 +235,10 @@
         highlightWarehouse('A');
         showProductsForWarehouse('A');
     </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
