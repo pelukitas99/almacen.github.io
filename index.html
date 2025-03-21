@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa del Almacén y Productos</title>
+    <title>Mapa del Producto y Productos</title>
     <style>
         /* Reset de estilos */
         * {
@@ -33,7 +33,7 @@
             color: #444;
         }
 
-        /* Selector de Almacén */
+        /* Selector de Producto */
         select, button {
             font-size: 18px;
             padding: 12px 20px;
@@ -51,8 +51,8 @@
             background-color: #f0f8ff;
         }
 
-        /* Mapa del Almacén */
-        #warehouseMap {
+        /* Mapa del Producto */
+        #productMap {
             display: flex;
             flex-direction: column;
             width: 80%;
@@ -64,21 +64,21 @@
             background-color: #e0e0e0;
         }
 
-        #warehouseTop {
+        #productTop {
             display: flex;
             width: 100%;
             height: 50%; /* La mitad de la pantalla */
             justify-content: center;
         }
 
-        #warehouseBottom {
+        #productBottom {
             width: 100%;
             height: 50%; /* La otra mitad de la pantalla */
             display: flex;
             justify-content: center;
         }
 
-        #warehouseA, #warehouseB, #warehouseC {
+        #productA, #productB, #productC {
             height: 100%;
             display: flex;
             justify-content: center;
@@ -89,17 +89,17 @@
             border: 1px solid #fff;
         }
 
-        #warehouseA {
+        #productA {
             width: 50%; /* Cuadro verde es más largo */
             background-color: #28a745; /* Verde */
         }
 
-        #warehouseB {
+        #productB {
             width: 25%; /* Cuadro amarillo */
             background-color: #ffc107; /* Amarillo */
         }
 
-        #warehouseC {
+        #productC {
             width: 25%; /* Cuadro rojo */
             background-color: #dc3545; /* Rojo */
         }
@@ -148,12 +148,12 @@
 
         /* Diseño para dispositivos móviles */
         @media (max-width: 768px) {
-            #warehouseMap {
+            #productMap {
                 flex-direction: column;
                 height: auto;
             }
 
-            #warehouseA, #warehouseB, #warehouseC {
+            #productA, #productB, #productC {
                 width: 100%;
                 height: 150px;
             }
@@ -172,25 +172,25 @@
 </head>
 <body>
 
-    <h1>Selecciona un Almacén</h1>
+    <h1>Selecciona un Producto</h1>
 
-    <!-- Selector de almacén -->
-    <select id="warehouseSelector">
-        <option value="A">Almacén A</option>
-        <option value="B">Almacén B</option>
-        <option value="C">Almacén C</option>
+    <!-- Selector de Producto -->
+    <select id="productSelector">
+        <option value="A">Producto A</option>
+        <option value="B">Producto B</option>
+        <option value="C">Producto C</option>
     </select>
 
-    <button onclick="resetWarehouse()">Resetear Mapa</button>
+    <button onclick="resetProduct()">Resetear Mapa</button>
 
-    <!-- Mapa del almacén -->
-    <div id="warehouseMap">
-        <div id="warehouseTop">
-            <div id="warehouseB">Almacén B</div>
-            <div id="warehouseC">Almacén C</div>
+    <!-- Mapa del Producto -->
+    <div id="productMap">
+        <div id="productTop">
+            <div id="productB">Producto B</div>
+            <div id="productC">Producto C</div>
         </div>
-        <div id="warehouseBottom">
-            <div id="warehouseA">Almacén A</div>
+        <div id="productBottom">
+            <div id="productA">Producto A</div>
         </div>
     </div>
 
@@ -202,25 +202,25 @@
         // URL del CSV de Google Sheets
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv";
 
-        // Función para cambiar el color del almacén según la selección
-        function highlightWarehouse(warehouse) {
-            // Reseteamos el color de todos los almacenes
-            document.getElementById('warehouseA').style.backgroundColor = '#28a745'; // Verde
-            document.getElementById('warehouseB').style.backgroundColor = '#ffc107'; // Amarillo
-            document.getElementById('warehouseC').style.backgroundColor = '#dc3545'; // Rojo
+        // Función para cambiar el color del producto según la selección
+        function highlightProduct(product) {
+            // Reseteamos el color de todos los productos
+            document.getElementById('productA').style.backgroundColor = '#28a745'; // Verde
+            document.getElementById('productB').style.backgroundColor = '#ffc107'; // Amarillo
+            document.getElementById('productC').style.backgroundColor = '#dc3545'; // Rojo
 
-            // Cambiamos el color del almacén seleccionado
-            if (warehouse === 'A') {
-                document.getElementById('warehouseA').style.backgroundColor = 'green';
-            } else if (warehouse === 'B') {
-                document.getElementById('warehouseB').style.backgroundColor = 'yellow';
-            } else if (warehouse === 'C') {
-                document.getElementById('warehouseC').style.backgroundColor = 'red';
+            // Cambiamos el color del producto seleccionado
+            if (product === 'A') {
+                document.getElementById('productA').style.backgroundColor = 'green';
+            } else if (product === 'B') {
+                document.getElementById('productB').style.backgroundColor = 'yellow';
+            } else if (product === 'C') {
+                document.getElementById('productC').style.backgroundColor = 'red';
             }
         }
 
-        // Función para obtener y mostrar los productos del almacén seleccionado
-        function showProductsForWarehouse(warehouse) {
+        // Función para obtener y mostrar los productos del producto seleccionado
+        function showProductsForProduct(product) {
             fetch(csvUrl)
                 .then(response => response.text())
                 .then(data => {
@@ -229,12 +229,12 @@
                     const productList = document.getElementById("productList");
                     productList.innerHTML = ''; // Limpiamos la lista al inicio
 
-                    // Recorremos los productos y mostramos solo los del almacén seleccionado
+                    // Recorremos los productos y mostramos solo los del producto seleccionado
                     products.forEach(product => {
-                        const almacén = product[6]?.trim();  // Suponemos que la columna 6 es el almacén
+                        const producto = product[6]?.trim();  // Suponemos que la columna 6 es el producto
                         
-                        // Hacemos la comparación flexible, que detecte tanto "A", "B", "C" como "Almacén A", "Almacén B", "Almacén C"
-                        if (almacén.toLowerCase() === warehouse.toLowerCase() || almacén.toLowerCase() === `almacén ${warehouse.toLowerCase()}`) {
+                        // Hacemos la comparación flexible, que detecte tanto "A", "B", "C" como "Producto A", "Producto B", "Producto C"
+                        if (producto.toLowerCase() === product.toLowerCase() || producto.toLowerCase() === `producto ${product.toLowerCase()}`) {
                             const productElement = document.createElement("div");
                             productElement.classList.add("product");
                             productElement.innerHTML = ` 
@@ -250,22 +250,22 @@
         }
 
         // Función para resetear el mapa
-        function resetWarehouse() {
-            document.getElementById('warehouseSelector').value = 'A';
-            highlightWarehouse('A');
-            showProductsForWarehouse('A');
+        function resetProduct() {
+            document.getElementById('productSelector').value = 'A';
+            highlightProduct('A');
+            showProductsForProduct('A');
         }
 
-        // Evento para cuando el usuario cambia la selección de almacén
-        document.getElementById('warehouseSelector').addEventListener('change', (event) => {
-            const selectedWarehouse = event.target.value;
-            highlightWarehouse(selectedWarehouse);
-            showProductsForWarehouse(selectedWarehouse);
+        // Evento para cuando el usuario cambia la selección de producto
+        document.getElementById('productSelector').addEventListener('change', (event) => {
+            const selectedProduct = event.target.value;
+            highlightProduct(selectedProduct);
+            showProductsForProduct(selectedProduct);
         });
 
-        // Inicializar el mapa y la lista con el almacén A por defecto
-        highlightWarehouse('A');
-        showProductsForWarehouse('A');
+        // Inicializar el mapa y la lista con el producto A por defecto
+        highlightProduct('A');
+        showProductsForProduct('A');
     </script>
 
 </body>
