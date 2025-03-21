@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa del Almacén y Productos</title>
+    <style>
+        /* Reset de estilos */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f1f1f1;
+            color: #333;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        /* Selector de Almacén */
+        select, button {
+            font-size: 18px;
+            padding: 12px 20px;
+            margin: 10px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            border-color: #007BFF;
+            background-color: #f0f8ff;
+        }
+
+        /* Mapa del Almacén */
+        #warehouseMap {
+            display: flex;
+            width: 80%;
+            height: 400px;
+            margin: 30px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: #e0e0e0;
+        }
+
+        #warehouseA, #warehouseB, #warehouseC {
+            width: 33.33%;
+            height: 100%;
+            border: 1px solid #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        #warehouseA {
+            background-color: #b8e2a9;
+        }
+
+        #warehouseB {
+            background-color: #f6d04b;
+        }
+
+        #warehouseC {
+            background-color: #f76c6c;
+        }
+
+        /* Lista de productos */
+        #productList {
+            margin-top: 40px;
+            max-width: 800px;
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .product {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .product:hover {
+            transform: scale(1.02);
+        }
+
+        .product strong {
+            color: #007BFF;
+        }
+
+        .product p {
+            color: #555;
+            font-size: 16px;
+        }
+
+        /* Diseño para dispositivos móviles */
+        @media (max-width: 768px) {
+            #warehouseMap {
+                flex-direction: column;
+                height: auto;
+            }
+
+            #warehouseA, #warehouseB, #warehouseC {
+                width: 100%;
+                height: 150px;
+            }
+
+            select, button {
+                width: 90%;
+            }
+
+            #productList {
+                max-width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Selecciona un Almacén</h1>
+
+    <!-- Selector de almacén -->
+    <select id="warehouseSelector">
+        <option value="A">Almacén A</option>
+        <option value="B">Almacén B</option>
+        <option value="C">Almacén C</option>
+    </select>
+
+    <button onclick="resetWarehouse()">Resetear Mapa</button>
+
+    <!-- Mapa del almacén -->
+    <div id="warehouseMap">
+        <div id="warehouseA"></div>
+        <div id="warehouseB"></div>
+        <div id="warehouseC"></div>
+    </div>
+
+    <!-- Lista de productos -->
+    <h2>Productos Disponibles</h2>
+    <div id="productList"></div>
+
+    <script>
+        // URL del CSV de Google Sheets
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv";
+
+        // Función para cambiar el color del almacén según la selección
+        function highlightWarehouse(warehouse) {
+            // Reseteamos el color de todos los almacenes
+            document.getElementById('warehouseA').style.backgroundColor = '#b8e2a9';
+            document.getElementById('warehouseB').style.backgroundColor = '#f6d04b';
+            document.getElementById('warehouseC').style.backgroundColor = '#f76c6c';
+
+            // Cambiamos el color del almacén seleccionado
+            if (warehouse === 'A') {
+                document.getElementById('warehouseA').style.backgroundColor = 'green';
+            } else if (warehouse === 'B') {
+                document.getElementById('warehouseB').style.backgroundColor = 'yellow';
+            } else if (warehouse === 'C') {
+                document.getElementById('warehouseC').style.backgroundColor = 'red';
+            }
+        }
+
+        // Función para obtener y mostrar los productos del almacén seleccionado
+        function showProductsForWarehouse(warehouse) {
+            fetch(csvUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split("\n");
+                    const products = rows.map(row => row.split(","));
+                    const productList = document.getElementById("productList");
+                    productList.innerHTML = ''; // Limpiamos la lista
+
+                    // Recorremos los productos y mostramos solo los del almacén seleccionado
+                    products.forEach(product => {
+                        const almacén = product[6]?.trim();  // Suponemos que la columna 6 es el almacén
+                        if (almacén === warehouse) {
+                            const productElement = document.createElement("div");
+                            productElement.classList.add("product");
+                            productElement.innerHTML = `
+                                <strong>Nombre:</strong> ${product[3]} <br>
+                                <strong>Unidades:</strong> ${product[4]} <br>
+                                <strong>Descripción:</strong> ${product[5]} <br>
+                            `;
+                            productList.appendChild(productElement);
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching data: ", error));
+        }
+
+        // Función para resetear el mapa
+        function resetWarehouse() {
+            document.getElementById('warehouseSelector').value = 'A';
+            highlightWarehouse('A');
+            showProductsForWarehouse('A');
+        }
+
+        // Evento para cuando el usuario cambia la selección de almacén
+        document.getElementById('warehouseSelector').addEventListener('change', (event) => {
+            const selectedWarehouse = event.target.value;
+            highlightWarehouse(selectedWarehouse);
+            showProductsForWarehouse(selectedWarehouse);
+        });
+
+        // Inicializar el mapa y la lista con el almacén A por defecto
+        highlightWarehouse('A');
+        showProductsForWarehouse('A');
+    </script>
+
+</body>
+</html>
